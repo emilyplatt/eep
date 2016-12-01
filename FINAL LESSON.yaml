@@ -1,0 +1,218 @@
+
+- Class: meta
+  Course: SCIU7SR
+  Lesson: Lesson
+  Author: your name goes here
+  Type: Standard
+  Organization: your organization's name goes here
+  Version: 2.4.2
+
+- Class: text
+  Output: Hi! Welcome to our lesson on Map Building!
+
+- Class: text
+  Output: Today we are going to be looking at a factor affecting Zika occurence in the USA.
+
+- Class: text
+  Output: We are firstly going to analyse our data and then overlay it on an interactive map of the USA.
+
+- Class: text
+  Output: Ok! Lets get started.
+
+- Class: text
+  Output: Firstly you will need to download our data on Zika, you can do this by following the link https://docs.google.com/spreadsheets/d/12BtnJL2F4ApgMintRP5JWy_vvjaMOWALevcWE2tkOys/edit#gid=0 , save this as a csv. file
+
+- Class: text
+  Output: Once you have done this it is time to open up R studio and start a new project.
+
+- Class: cmd_question
+  Output: Import the data you have just downloaded, make it a new object and call it zika.
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='zika<-read.csv("UsaZikaData26_11.csv")')
+  Hint: Remember to make sure everything is spelled correctly, lower case and upper case is important too!
+  
+ - Class: text
+  Output: You need to conduct all quality control checks on this data now.
+
+- Class: cmd_question
+  Output: Is the data normal distributed? Try building a histogram of the variables but use a natural log transformation, lets do it for number.travel.associated.cases first!
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='hist(log(zika$number.travel.associated.cases))')
+  Hint: Try hist(log())
+
+- Class: cmd_question
+  Output: Well done, now lets try doing this transformation but for the second variable, GDP!
+  CorrectAnswer: EXPR 
+  AnswerTests: omnitest(correctExpr='hist(log(zika$GDP))')
+  Hint: Do the same as what you just did above but change number.travel.associated.cases for GDP!
+
+- Class: cmd_question
+  Output: Now we can see the data is normally distributed using a log transformation it is important to subset these new log-transformed variables.Try storing the log number of travel associated cases as 'logTravelCases'
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='logTravelCases<-log(zika$number.travel.associated.cases)')
+  Hint: Use logTravelCases<-log(zika$number.travel.associated.cases)
+
+- Class: cmd_question
+  Output: Great! Do the same for log GDP and save it as 'logGDP'
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='logGDP<-log(zika$GDP')
+  Hint: Try doing what you did above but substituting number.travel.associated.cases with GDP, so logGDP<-log(zika$GDP)
+
+- Class: cmd_question
+  Output: It is now important to check your data for collinearity, taking a specific look at travel associated zika cases and GDP, try doing this now!
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='pairs(zika)')
+  Hint: Try using the pairs() function, remember to use the original data set.
+
+- Class: cmd_question
+  Output: It's time to build the model plotting the effects of GDP on travel associated cases, call the model mod.1. Try this now.
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='mod.1<-lm(logTravelCases~logGDP,data=zika$states)')
+  Hint: Try using the general linear model, think carefully about which variable is the predictor and which is the response.
+
+- Class: cmd_question
+  Output: Well done! Now try calling a summary of your model
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='summary(mod.1)')
+  Hint: Try using the summary() function
+  
+ - Class: text
+  Output: Have a closer look at the multiple R-Squared value, this suggests that most of the variance in our model is explained by the general linear model.
+  
+ - Class: cmd_question
+  Output: Now plot your model!
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='plot(mod.1)')
+  Hint: Use the plot() function.
+  
+- Class: text
+  Output: Make your plot publication quality standard. For this remember to include things like a legend and a line of best fit.
+  
+- Class: text
+  Output: Right! Lets get started on building our map.
+
+- Class: text
+  Output: You need to install 2 fundamental packages: leaflet and maps. If you do not know how to do this try 'install.packages("")', with your desired package in the quotation marks
+
+- Class: text
+  Output: You can check the packages have installed properly by using the funtion 'library()'
+
+- Class: text
+  Output: We are going to create a map displaying each states GDP and the number travel associated Zika cases. Through statistical analysis you carried out it was shown that states with a higher GDP also have a higher number of travel associated Zika cases, just as we hypothesised! Let's create a map which allows us to visualise this relationship in a more user friendly way.
+  
+  - Class: text
+   Output: We want to create an interactive Choropleth Map with popups which show the number of travel associated cases and the GDP for each state.
+   
+ - Class: text
+  Output: In order to create the colour gradient for the map we need to create a colour scale relative to GDP. To save time we have already decided upon colours and scale, now all you need to do is create a colour palette to use in your map.
+
+- Class: cmd_question
+  Output:The code to create the palette is as follows. The #fee5db etc represents the colours you will be using whilst the bins are the categories for GDP($), for this example we expect you to use this exact code but if you were to create your own map in future you can change the colours and categories to fit your data.
+  palette <- colorBin(c('#fee5d9',
+                        '#fcbba1',
+                        '#fc9272',
+                        '#fb6a4a',
+                        '#ef3b2c',
+                        '#cb181d',
+                        '#99000d'),
+                      bins = c(0, 500000, 1000000, 1500000, 2000000, 2500000, 3000000))
+  CorrectAnswer: EXPR
+  AnswerTests: omnitest(correctExpr='palette <- colorBin(c('#fee5d9',
+                        '#fcbba1',
+                        '#fc9272',
+                        '#fb6a4a',
+                        '#ef3b2c',
+                        '#cb181d',
+                        '#99000d'),
+                      bins = c(0, 500000, 1000000, 1500000, 2000000, 2500000, 3000000))')
+  Hint: Make sure the code is copied exactly as above.
+
+
+- Class: text
+  Output: Great! Next its time to create the pop-ups for the map. Take a minute to think what functions you might use to create popups, for this you might want to take a look at the paste0() help file. Why don't you take a look before we continue.
+
+- Class: text
+  Output: Cool, lets get going! Try creating your own pop-up now, for this you'll need to create a new object called 'popup' with travel associated Zika cases and GDP values.
+  
+- Class: text
+  Output: How did you get on? Take a look at our code if you need some help, it doesn't have to match perfectly aslong as it is called 'popup' and contains the relevant data.
+  popup <- paste0(mapStates$names,
+                   "<br>Number of Travel Associated Cases: ",             
+                   zika$number.travel.associated.cases,
+                   "<br>GDP($): ", 
+                   zika$GDP
+)
+  
+- Class: cmd_question
+  Output: Fantastic! It's finally time to create the map using everything we've done so far. For this we'll use the leaflet package, have a go at calling up a blank leaflet now.
+  CorrectAnswer: EXPR 
+  AnswerTests: omnitest(correctExpr='leaflet()')
+  Hint: Try using leaflet().
+  
+- Class: text
+  Output: We will extract USA state data from the {maps} package and store this in a new appropriately named object. If you are struggling have a look at the help file for the map function, map().
+
+- Class:  text
+  Output: For this our code was 'mapStates<-map("state", fill = TRUE, plot = FALSE)', fill= TRUE corresponds to the colour in the state being filled ahnd plot=FALSE means that we don't want to plot the map just yet as we have more to add.
+  
+ - Class:  text
+  Output: It's now time to start saving information in a leaflet object! Create a new object containing the map data you just saved (our one was called mapStates).Don't forget to add the leaflet function before you include the data.
+  
+- Class:  text
+  Output: This is how we did it, 'usa<-leaflet(data = mapStates)'.
+  
+- Class: text
+  Output: This line of code is not quite finished yet though! We now need to use a new operator called pipe operator (%>%) which tells R that we are including information we have typed before the operator and that there is also more to follow.
+  
+ - Class: text
+  Output: To the line of code we have just created we need to add 2 pipe operators one before the addTiles() function and one after, the addTiles () function simply adds a new layer to our map which we will work on later.
+  
+- Class: text
+  Output:Your updated line of code should now look something like this 'usa<-leaflet(data = mapStates) %>% addTiles() %>%'
+  
+- Class: text
+  Output: The next line of code will allow you to make each state an independent box which you will then add your pop-ups and colour palette too.
+
+- Class: text
+  Output: Begin by using the addPolygons() function, inside the brackets you will tell R what you expect each state to contain, this is where your pop-ups and colour palette which you created earlier come in use.
+ 
+ - Class: text
+  Output: Within the brackets you are going to use 3 options 'fillcolor=, fillopacity= and pop-up=', try and have a think now what you think these might mean.
+ 
+ - Class: text
+  Output: Ok Great!, after the fill colour you are going to enter your colour palette and include the data. The fillopacity corresponds to how transparent you want your colour to be, you can ammend this to what you think is suitable, it should be somewhere between 0-1. popup= is where you enter your popup data you collected earlier.Have a go at making this code now!
+
+- Class: text
+  Output: If you need some help our code looks like this 'addPolygons(fillColor = ~palette(zika$GDP), fillOpacity = 0.7, popup = popup) %>%', notice the pipe operator at the end this tells R that there is more to come.
+
+- Class: text
+  Output: We haven't got long to go now, then we can see what the final map looks like! We are now going to add a legend to the map using the addLegend() function. Before we move on why don't you try to think what we need to include in the legend.
+
+- Class: text
+  Output: Cool! You need to include the colours in the map, the position you want the legend in, labels, opacity, and a title. Using previous knowledge and some code we have used already in the tutorial try to create a legend for your map now.
+
+- Class: text
+  Output: It's nearly time to have a look at the final product, first lets see if your legend looks similar to ours 
+  addLegend(position = 'bottomleft',
+          colors = c('#fee5d9',
+                     '#fcbba1',
+                     '#fc9272',
+                     '#fb6a4a',
+                     '#ef3b2c',
+                     '#cb181d',
+                     '#99000d'), 
+          labels = c('0',"","","","","",'2513867'),
+          opacity = 0.7,
+          title = "GDP($)")
+      The colours should correspond to those on the map as long with the categories, the title and position however is completely up to you! See what you think looks good when we create the map.
+
+
+- Class: text
+  Output: Let's take a look at your map! All you need to do now is call it up, we called ours usa, you need to type in the script what you called yours press and then press control&enter.
+ Class: cmd_question
+ 
+ - Class: text
+  Output: Tada! Well done you have created an interactive map showing the relationship between travel associated Zika cases and GDP. This is a cool way of looking at data that allows someone not familiar with R to see the relationship! This would be useful for all kinds of data and is relatively simple to create, good work!
+  
+ 
+
